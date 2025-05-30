@@ -1,0 +1,15 @@
+{
+  "name": "fa-taxi-centrale-backend",
+  "version": "1.0.0",
+  "description": "Backend voor FA Taxi Centrale (bijvoorbeeld voor e-mail verificatie)",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemailer": "^6.9.13",
+    "cors": "^2.8.5"
+  }
+}
