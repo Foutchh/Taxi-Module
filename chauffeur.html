@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chauffeursportaal | FA Taxi Service</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .switch {
+      text-align: center;
+      margin-top: 20px;
+      color: #555;
+    }
+
+    .switch a {
+      color: #007bff;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #message {
+      text-align: center;
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 id="form-title">Chauffeur Inloggen</h2>
+
+    <div id="message"></div>
+
+    <input type="email" id="email" placeholder="E-mailadres" required>
+    <input type="password" id="password" placeholder="Wachtwoord" required>
+
+    <button id="loginBtn">Inloggen</button>
+    <button id="registerBtn" class="hidden">Registreren</button>
+
+    <div class="switch">
+      <span id="switchText">Nog geen account?</span>
+      <a id="switchMode">Registreer hier</a>
+    </div>
+  </div>
+
+  <!-- Firebase SDK's -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIpEZWCLXWgCBsMQKQVSxWc4GySJ1NlMc",
+      authDomain: "fa-taxi-service.firebaseapp.com",
+      projectId: "fa-taxi-service",
+      storageBucket: "fa-taxi-service.appspot.com",
+      messagingSenderId: "482023134149",
+      appId: "1:482023134149:web:db57e87f7f671ea4a8b1ac",
+      measurementId: "G-CZ09KB69NR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const message = document.getElementById('message');
+    const switchText = document.getElementById('switchText');
+    const switchMode = document.getElementById('switchMode');
+    const formTitle = document.getElementById('form-title');
+
+    let isLoginMode = true;
+
+    switchMode.addEventListener('click', () => {
+      isLoginMode = !isLoginMode;
+      if (isLoginMode) {
+        formTitle.textContent = "Chauffeur Inloggen";
+        loginBtn.classList.remove("hidden");
+        registerBtn.classList.add("hidden");
+        switchText.textContent = "Nog geen account?";
+        switchMode.textContent = "Registreer hier";
+      } else {
+        formTitle.textContent = "Chauffeur Registreren";
+        loginBtn.classList.add("hidden");
+        registerBtn.classList.remove("hidden");
+        switchText.textContent = "Al een account?";
+        switchMode.textContent = "Log in";
+      }
+    });
+
+    loginBtn.addEventListener('click', () => {
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .then(userCredential => {
+          message.style.color = "green";
+          message.textContent = "Inloggen geslaagd!";
+          // Redirect of dashboard activeren
+        })
+        .catch(error => {
+          message.textContent = "Fout bij inloggen: " + error.message;
+        });
+    });
+
+    registerBtn.addEventListener('click', () => {
+      createUserWithEmailAndPassword(auth, email.value, password.value)
+        .then(userCredential => {
+          message.style.color = "green";
+          message.textContent = "Registratie geslaagd!";
+        })
+        .catch(error => {
+          message.textContent = "Fout bij registratie: " + error.message;
+        });
+    });
+  </script>
+</body>
+</html>
