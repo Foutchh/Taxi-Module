@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>FA Taxi Centrale - Boeking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="klant-style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <style>
+    /* Metallic goud gradient */
+    :root {
+      --gold-gradient: linear-gradient(90deg, #bfa046 0%, #ffe082 40%, #fffbe6 60%, #bfa046 100%);
+      --gold-border: #bfa046;
+      --gold-shadow: 0 2px 12px 0 #bfa04655, 0 1px 2px #fffbe6aa;
+      --gold-text: #bfa046;
+      --gold-text-strong: #a07d1a;
+      --metal-bg: linear-gradient(135deg, #23283a 0%, #353b4d 60%, #23283a 100%);
+      --metal-gloss: linear-gradient(120deg, #fff3 0%, #fff1 40%, #fff0 100%);
+    }
+    body {
+      background: var(--metal-bg);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      /* metallic glans effect */
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: var(--metal-gloss);
+      z-index: 0;
+    }
+    header {
+      background: #23283a;
+      color: var(--gold-text);
+      padding: 32px 0 18px 0;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(191,160,70,0.13), 0 1px 8px #fffbe633;
+      border-bottom: 2px solid var(--gold-border);
+      position: relative;
+      z-index: 1;
+    }
+    header img {
+      height: 54px;
+      margin-right: 14px;
+      vertical-align: middle;
+      filter: brightness(1.2) drop-shadow(0 0 2px #fffbe6);
+    }
+    header h1 {
+      display: inline-block;
+      font-size: 2.3em;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 1.5px;
+      vertical-align: middle;
+      color: var(--gold-text-strong);
+      text-shadow: 0 2px 8px #fffbe633, 0 1px 0 #fffbe6;
+    }
+    h1 {
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 40%, #fffbe6 60%, #bfa046 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      /* text-fill-color: transparent;  <-- Verwijderd, want niet-standaard */
+      filter: drop-shadow(0 2px 8px #fffbe633);
+    }
+    .container {
+      background: rgba(35,40,58,0.98);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #bfa04633, 0 2px 8px #fffbe61a;
+      padding: 36px 30px 28px 30px;
+      width: 100%;
+      max-width: 430px;
+      margin: 38px auto 28px auto;
+      text-align: center;
+      position: relative;
+      animation: fadeIn 0.7s;
+      border: 2px solid var(--gold-border);
+      z-index: 1;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    h2 {
+      color: var(--gold-text-strong);
+      font-size: 1.7em;
+      margin-bottom: 20px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #fffbe633;
+    }
+    label {
+      font-size: 1.08em;
+      color: #fff;
+      margin-bottom: 4px;
+      display: block;
+      text-align: left;
+      margin-top: 13px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      text-shadow: 0 1px 0 #fff2;
+    }
+    input, select {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0 0 0;
+      border: 1.5px solid #353b4d;
+      border-radius: 8px;
+      font-size: 1em;
+      color: #fff;
+      background: #23283a;
+      box-sizing: border-box;
+      transition: border 0.2s, background 0.2s;
+      font-family: inherit;
+      box-shadow: 0 1px 3px #fffbe61a;
+    }
+    input:focus, select:focus {
+      border: 1.5px solid var(--gold-border);
+      outline: none;
+      background: #23283a;
+      box-shadow: 0 0 0 2px #ffe08255;
+    }
+    .input-row {
+      position: relative;
+      width: 100%;
+    }
+    .input-row input[type="text"] {
+      width: 100%;
+      padding-right: 44px;
+      margin-bottom: 0;
+      background: #23283a;
+      color: #fff;
+      border: 1.5px solid #353b4d;
+      border-radius: 8px;
+      font-size: 1em;
+      box-sizing: border-box;
+      transition: border 0.2s, background 0.2s;
+      height: 44px;
+    }
+    .input-row input[type="text"]:focus {
+      border: 1.5px solid var(--gold-border);
+      outline: none;
+      background: #23283a;
+    }
+    .loc-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--gold-gradient);
+      border: 2px solid var(--gold-border);
+      color: var(--gold-text-strong);
+      font-size: 1.25em;
+      padding: 0;
+      margin: 0;
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--gold-shadow);
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      z-index: 2;
+      outline: none;
+    }
+    .loc-btn:active, .loc-btn:focus {
+      background: linear-gradient(90deg, #ffe082 0%, #bfa046 100%);
+      color: #fff;
+      border: 2px solid #fffbe6;
+      box-shadow: 0 0 8px #ffe08299;
+    }
+    .loc-btn svg {
+      display: block;
+      margin: auto;
+      pointer-events: none;
+    }
+    button[type="submit"],
+    #add-tussenstop-btn,
+    #add-reservering-btn,
+    #remove-reservering-btn {
+      background: var(--gold-gradient);
+      color: #23283a;
+      font-size: 1.15em;
+      padding: 13px 0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 18px;
+      font-weight: 700;
+      box-shadow: var(--gold-shadow);
+      transition: background 0.2s, transform 0.1s, color 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.5px;
+      border: 2px solid var(--gold-border);
+      text-shadow: 0 1px 0 #fffbe6;
+    }
+    button[type="submit"]:hover, button[type="submit"]:focus,
+    #add-tussenstop-btn:hover, #add-tussenstop-btn:focus,
+    #add-reservering-btn:hover, #add-reservering-btn:focus,
+    #remove-reservering-btn:hover, #remove-reservering-btn:focus {
+      background: linear-gradient(90deg, #fffbe6 0%, #ffe082 60%, #bfa046 100%);
+      color: #a07d1a;
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 0 16px #ffe08299;
+    }
+    #kaart {
+      height: 280px;
+      margin-top: 22px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #bfa04633;
+      border: 2px solid var(--gold-border);
+      background: #181c24;
+      min-height: 180px;
+      min-width: 100%;
+    }
+    .leaflet-container {
+      background: #181c24 !important;
+      color-scheme: dark;
+      min-height: 280px;
+      min-width: 100%;
+    }
+    #ritprijs {
+      margin-top: 18px;
+      font-size: 1.13em;
+      color: #ffe082;
+      background: #23283a;
+      border-radius: 8px;
+      padding: 12px 10px;
+      min-height: 36px;
+      box-shadow: 0 1px 3px #bfa04633;
+      word-break: break-word;
+      color: var(--gold-text-strong);
+      border: 2px solid var(--gold-border);
+      text-shadow: 0 1px 0 #fffbe6;
+    }
+    .error {
+      color: #ff6b6b;
+      background: #2d1a1a;
+      border: 1px solid #fbb;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin: 10px 0 0 0;
+      font-size: 1em;
+      display: none;
+      box-shadow: 0 1px 2px #fffbe61a;
+    }
+    .error.show {
+      display: block;
+      animation: shake 0.25s;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0);}
+      25% { transform: translateX(-6px);}
+      50% { transform: translateX(6px);}
+      75% { transform: translateX(-4px);}
+      100% { transform: translateX(0);}
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 18px 4vw 18px 4vw;
+        max-width: 98vw;
+      }
+      #kaart {
+        height: 180px;
+      }
+      header img {
+        height: 38px;
+      }
+      header h1 {
+        font-size: 1.3em;
+      }
+    }
+    footer {
+      text-align: center;
+      color: #b0b6c7;
+      font-size: 0.98em;
+      margin: 18px 0 10px 0;
+      letter-spacing: 0.2px;
+      text-shadow: 0 1px 0 #fffbe6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://cdn-icons-png.flaticon.com/512/854/854894.png" alt="Taxi Logo" />
+    <h1 style="background:var(--gold-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;/* text-fill-color:transparent; */filter: drop-shadow(0 2px 8px #fffbe633);font-family:'Segoe UI',Arial,sans-serif;font-weight:900;letter-spacing:2px;font-size:2.7em;">
+      FA Taxi Centrale
+    </h1>
+    <div style="color:#ffe082;font-size:2.3em;font-weight:600;margin-top:4px;letter-spacing:0.5px;">
+      24/7 Service
+    </div>
+  </header>
+  <div class="container">
+    <h2>Boek je rit</h2>
+    <form id="boeking-form" autocomplete="off" novalidate>
+      <label for="ophaal">Ophaal locatie*</label>
+      <div class="input-row">
+        <input id="ophaal" type="text" placeholder="Ophaaladres of locatie" required maxlength="80" autocomplete="off" />
+        <button type="button" class="loc-btn" id="locate-btn" title="Gebruik mijn locatie" aria-label="Gebruik mijn locatie">
+          <!-- Navigatie/lokatie puntje icoon (stijlvol, herkenbaar als live locatie) -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 26 26">
+            <circle cx="13" cy="13" r="10" stroke="#2563eb" stroke-width="2" fill="#fff"/>
+            <circle cx="13" cy="13" r="5" fill="#2563eb"/>
+            <circle cx="13" cy="13" r="2" fill="#fff"/>
+          </svg>
+        </button>
+      </div>
+      <!-- Tussenstops -->
+      <div id="tussenstops-container"></div>
+      <button type="button" id="add-tussenstop-btn" style="margin:10px 0 0 0;display:block;width:100%;font-weight:600;border-radius:7px;padding:10px 0;cursor:pointer;">
+        + Tussenstop toevoegen
+      </button>
+      <label for="afzet">Afzet locatie*</label>
+      <input id="afzet" type="text" placeholder="Afzetadres" required maxlength="80" />
+      <!-- Nieuw: reservering -->
+      <button type="button" id="add-reservering-btn" style="margin:10px 0 0 0;display:block;width:100%;font-weight:600;border-radius:7px;padding:10px 0;cursor:pointer;">
+        Rit Reserveren?
+      </button>
+      <div id="reservering-datetime-container" style="display:none;margin-top:10px;">
+        <label for="reservering-datetime" style="color:#fff;font-size:1.08em;text-align:left;display:block;margin-bottom:4px;">Kies gewenste datum en tijd*</label>
+        <input type="datetime-local" id="reservering-datetime" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid #353b4d;font-size:1em;background:#23283a;color:#fff;" />
+        <button type="button" id="remove-reservering-btn" style="margin-top:10px;background:#ff6b6b;color:#fff;font-weight:600;border-radius:7px;padding:8px 0;width:100%;border:none;cursor:pointer;">
+          Reservering annuleren
+        </button>
+      </div>
+      <!-- Nieuw: aantal personen -->
+      <label for="personen" style="margin-top:14px;">Aantal personen*</label>
+      <select id="personen" required style="width:100%;padding:12px;margin-top:6px;border-radius:8px;border:1.5px solid #353b4d;font-size:1em;background:#23283a;color:#fff;">
+        <option value="1">1 persoon</option>
+        <option value="2">2 personen</option>
+        <option value="3">3 personen</option>
+        <option value="4">4 personen</option>
+        <option value="5">5 personen</option>
+        <option value="6">6 personen</option>
+        <option value="7">7 personen</option>
+        <option value="8">8 personen</option>
+      </select>
+      <!-- Opmerking veld -->
+      <label for="opmerking" style="margin-top:14px;">Opmerking (optioneel)</label>
+      <textarea id="opmerking" rows="2" maxlength="200" placeholder="Bijvoorbeeld: extra instructies, bagage, etc." style="width:100%;padding:12px;margin-top:6px;border-radius:8px;border:1.5px solid #353b4d;font-size:1em;background:#23283a;color:#fff;resize:vertical;box-sizing:border-box;"></textarea>
+      <div class="error" id="form-error"></div>
+      <button type="submit" style="margin-top:18px;">Bereken rit &amp; toon route</button>
+      <button type="button" id="bevestig-betaal-btn" style="margin-top:18px;background:linear-gradient(90deg,#2563eb 0%,#bfa046 100%);color:#fff;font-weight:700;font-size:1.1em;padding:13px 0;width:100%;border:none;border-radius:8px;box-shadow:0 1px 3px #2563eb33;cursor:pointer;letter-spacing:0.5px;">
+        Bevestig rit &amp; betaal via iDEAL
+      </button>
+    </form>
+    <div id="kaart" style="height:280px; min-height:180px; min-width:100%;"></div>
+    <div id="ritprijs" style="font-size:1.18em;font-family:'Segoe UI',Arial,sans-serif;font-weight:600;line-height:1.6;letter-spacing:0.2px;color:#23283a;background:linear-gradient(90deg,#fffbe6 0%,#ffe082 60%,#bfa046 100%);border:2px solid #bfa046;box-shadow:0 1px 3px #bfa04633;text-shadow:0 1px 0 #fffbe6;padding:18px 14px;margin-top:18px;border-radius:10px;">
+    </div>
+  </div>
+  <footer>
+    &copy; 2024 FA Taxi Centrale &mdash; Snel, veilig en transparant.<br>
+    <span style="font-size:0.97em;">
+      Bekijk deze pagina live op:<br>
+      <a href="http://localhost:8000/klantpagina.html" style="color:var(--primary);text-decoration:underline;" target="_blank">
+        http://localhost:8000/klantpagina.html
+      </a>
+    </span>
+  </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="api.js"></script>
+  <script src="klant-form.js"></script>
+  <script src="klant-locatie.js"></script>
+  <script src="klant-map.js"></script>
+  <script src="ritprijs.js"></script>
+  <script src="betaling.js"></script>
+  <script>
+    // Toon standaard de live locatie van de gebruiker op de kaart bij het laden van de pagina
+    document.addEventListener('DOMContentLoaded', function() {
+      var kaartDiv = document.getElementById('kaart');
+      if (navigator.geolocation && kaartDiv) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          // Verwijder bestaande kaart als die er is
+          if (kaartDiv._leaflet_id) {
+            kaartDiv._leaflet_id = null;
+            kaartDiv.innerHTML = "";
+          }
+          var lat = pos.coords.latitude;
+          var lng = pos.coords.longitude;
+          var kaart = L.map('kaart').setView([lat, lng], 14);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+          }).addTo(kaart);
+          L.marker([lat, lng]).addTo(kaart).bindPopup('Jouw live locatie').openPopup();
+        }, function() {
+          // Fallback: Amsterdam
+          if (kaartDiv && !kaartDiv._leaflet_id && kaartDiv.innerHTML.trim() === "") {
+            var kaart = L.map('kaart').setView([52.370216, 4.895168], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap'
+            }).addTo(kaart);
+          }
+        });
+      } else if (kaartDiv && !kaartDiv._leaflet_id && kaartDiv.innerHTML.trim() === "") {
+        // Fallback: Amsterdam
+        var kaart = L.map('kaart').setView([52.370216, 4.895168], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+        }).addTo(kaart);
+      }
+    });
+    // Voeg dynamisch tussenstops toe (max 4)
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('tussenstops-container');
+      const addBtn = document.getElementById('add-tussenstop-btn');
+      let tussenstopCount = 0;
+      addBtn.addEventListener('click', function() {
+        if (tussenstopCount >= 4) return;
+        tussenstopCount++;
+        const div = document.createElement('div');
+        div.className = 'input-row';
+        div.style.marginTop = '10px';
+        div.innerHTML = `
+          <input type="text" class="tussenstop" placeholder="Tussenstop ${tussenstopCount}" maxlength="80" style="width:92%;" />
+          <button type="button" class="remove-tussenstop-btn" title="Verwijder tussenstop" style="background:#ff6b6b;color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:1.2em;cursor:pointer;margin-left:6px;">&times;</button>
+        `;
+        container.appendChild(div);
+        div.querySelector('.remove-tussenstop-btn').onclick = function() {
+          container.removeChild(div);
+          tussenstopCount--;
+        };
+      });
+
+      // Reservering knop
+      const reserveringBtn = document.getElementById('add-reservering-btn');
+      const reserveringDatetimeContainer = document.getElementById('reservering-datetime-container');
+      const reserveringDatetimeInput = document.getElementById('reservering-datetime');
+      const removeReserveringBtn = document.getElementById('remove-reservering-btn');
+      reserveringBtn.addEventListener('click', function() {
+        reserveringBtn.disabled = true;
+        reserveringBtn.innerText = "Reservering toegevoegd (€17,50)";
+        reserveringBtn.style.background = "#b0b6c7";
+        reserveringBtn.style.color = "#23283a";
+        reserveringDatetimeContainer.style.display = "block";
+        window._reserveringToegevoegd = true;
+      });
+      removeReserveringBtn.addEventListener('click', function() {
+        reserveringBtn.disabled = false;
+        reserveringBtn.innerText = "Rit Reserveren?";
+        reserveringBtn.style.background = "#fbbf24";
+        reserveringBtn.style.color = "#23283a";
+        reserveringDatetimeContainer.style.display = "none";
+        reserveringDatetimeInput.value = "";
+        window._reserveringToegevoegd = false;
+      });
+    });
+
+    // Adressuggesties via OpenRouteService API (met jouw API key)
+    const ORS_API_KEY = "5b3ce3597851110001cf6248b59dc263cab24bdabda48748cd9122b3";
+    function suggestAdresORS(input, listId) {
+      let timeout;
+      input.addEventListener('input', function() {
+        clearTimeout(timeout);
+        const val = input.value.trim();
+        if (val.length < 3) return;
+        timeout = setTimeout(() => {
+          fetch(`https://api.openrouteservice.org/geocode/autocomplete?api_key=${ORS_API_KEY}&text=${encodeURIComponent(val)}&size=5`)
+            .then(res => res.json())
+            .then(data => {
+              let datalist = document.getElementById(listId);
+              if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = listId;
+                document.body.appendChild(datalist);
+                input.setAttribute('list', listId);
+              }
+              datalist.innerHTML = '';
+              (data.features || []).forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.properties.label;
+                datalist.appendChild(opt);
+              });
+            });
+        }, 300);
+      });
+    }
+    suggestAdresORS(document.getElementById('ophaal'), 'ophaal-suggesties');
+    suggestAdresORS(document.getElementById('afzet'), 'afzet-suggesties');
+
+    // GPS volgen en opslaan (met duidelijke foutafhandeling)
+    let klantLocatie = null;
+    function startGPS() {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+          function(pos) {
+            klantLocatie = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              tijd: new Date().toISOString()
+            };
+            localStorage.setItem("klant_gps", JSON.stringify(klantLocatie));
+            // Verberg eventuele foutmelding als locatie nu wel lukt
+            const errDiv = document.getElementById('locatie-error');
+            if (errDiv) errDiv.style.display = "none";
+          },
+          function(error) {
+            let msg = "";
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                msg = "Locatie toegang geweigerd. Sta locatie toe voor deze pagina.";
+                break;
+              case error.POSITION_UNAVAILABLE:
+                msg = "Locatie niet beschikbaar. Probeer het buiten of met betere verbinding.";
+                break;
+              case error.TIMEOUT:
+                msg = "Locatie ophalen duurde te lang. Probeer opnieuw.";
+                break;
+              default:
+                msg = "Onbekende locatie fout.";
+            }
+            console.warn("Locatie ophalen mislukt:", msg);
+            // Toon melding aan gebruiker, maar niet telkens opnieuw
+            let errDiv = document.getElementById('locatie-error');
+            if (!errDiv) {
+              errDiv = document.createElement('div');
+              errDiv.id = 'locatie-error';
+              errDiv.style = "color:#ff6b6b;background:#2d1a1a;border:1px solid #fbb;border-radius:6px;padding:8px 10px;margin:10px 0 0 0;font-size:1em;";
+              document.body.insertBefore(errDiv, document.body.firstChild);
+            }
+            errDiv.textContent = msg;
+            errDiv.style.display = "block";
+          },
+          {
+            enableHighAccuracy: false,
+            maximumAge: 300000, // 5 minuten
+            timeout: 1000       // 1 seconde
+          }
+        );
+      } else {
+        console.warn("Geolocatie niet ondersteund.");
+      }
+    }
+    startGPS();
+
+    // Helper: klant ophalen uit localStorage
+    function getKlant() {
+      try {
+        return JSON.parse(localStorage.getItem("klant") || "{}");
+      } catch (e) { return {}; }
+    }
+
+    // Bij rit boeken: sla rit op in localStorage én in backend (voor dashboard)
+    document.getElementById('bevestig-betaal-btn').addEventListener('click', async function() {
+      // Verzamel ritgegevens
+      const ophaaladres = document.getElementById('ophaal').value;
+      const afzetadres = document.getElementById('afzet').value;
+      const personen = document.getElementById('personen').value;
+      const reserveringDatumTijd = document.getElementById('reservering-datetime')?.value || "";
+      const opmerking = document.getElementById('opmerking')?.value || "";
+      const klant = getKlant();
+      const prijs = localStorage.getItem("rit_prijs") || "";
+
+      // Sla rit tijdelijk op met status 'open'
+      const ritId = window.genereerRitId ? window.genereerRitId() : ("RIT-" + Date.now());
+      const rit = {
+        id: ritId,
+        ophaaladres,
+        afzetadres,
+        datumtijd: reserveringDatumTijd,
+        personen,
+        status: "open",
+        prijs,
+        gps: klantLocatie,
+        opmerking,
+        email: klant.email,
+        telefoon: klant.telefoon
+      };
+      // Sla lokaal op (voor directe feedback)
+      let ritten = [];
+      const rittenStr = localStorage.getItem("ritten");
+      if (rittenStr) { try { ritten = JSON.parse(rittenStr); } catch (e) {} }
+      ritten.push(rit);
+      localStorage.setItem("ritten", JSON.stringify(ritten));
+      localStorage.setItem("laatste_rit_id", ritId);
+
+      // Sla rit centraal op via backend (voor dashboard)
+      try {
+        await fetch("https://fa-taxi-centrale.onrender.com/api/rit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rit)
+        });
+      } catch (e) {
+        // Foutmelding mag, maar rit blijft lokaal zichtbaar
+        console.warn("Rit niet centraal opgeslagen:", e);
+      }
+
+      // Start Mollie betaling (demo-link)
+      window.location.href = "https://www.mollie.com/payments/demo/ideal?amount=10.00&description=Rit%20" + ritId;
+    });
+  </script>
+</body>
+</html>
