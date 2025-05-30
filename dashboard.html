@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>FA Taxi Centrale - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="klant-style.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #23283a 0%, #353b4d 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+    }
+    header {
+      background: #23283a;
+      color: #ffe082;
+      padding: 32px 0 18px 0;
+      text-align: center;
+      border-bottom: 2px solid #bfa046;
+    }
+    header h1 {
+      font-size: 2.2em;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 40%, #fffbe6 60%, #bfa046 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px #fffbe633);
+    }
+    .container {
+      max-width: 900px;
+      margin: 36px auto 24px auto;
+      background: rgba(35,40,58,0.98);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #bfa04633, 0 2px 8px #fffbe61a;
+      padding: 32px 24px 24px 24px;
+      border: 2px solid #bfa046;
+    }
+    h2 {
+      color: #ffe082;
+      font-size: 1.5em;
+      margin-bottom: 18px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #fffbe633;
+    }
+    .dashboard-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 180px;
+      height: 120px;
+      font-size: 1.18em;
+      font-weight: 700;
+      border-radius: 16px;
+      border: 2px solid #bfa046;
+      background: linear-gradient(120deg, #ffe082 0%, #fffbe6 100%);
+      color: #23283a;
+      box-shadow: 0 4px 18px #bfa04622, 0 1px 3px #fffbe61a;
+      margin-bottom: 18px;
+      text-decoration: none;
+      transition: transform 0.13s, box-shadow 0.13s, background 0.18s;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+    }
+    .dashboard-btn span {
+      font-size: 2.2em;
+      margin-bottom: 8px;
+    }
+    .dashboard-btn:hover {
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 100%);
+      color: #23283a;
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 8px 32px #bfa04644, 0 2px 8px #fffbe61a;
+    }
+    .klanten-btn { border-color: #2563eb; }
+    .ritten-btn { border-color: #bfa046; }
+    .chauffeur-btn { border-color: #2563eb; }
+    /* Voeg hier meer dashboard styles toe indien gewenst */
+  </style>
+</head>
+<body>
+  <header style="position:relative;">
+    <button id="uitlog-btn" style="
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      background: linear-gradient(90deg,#ff6b6b 0%,#ffb199 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.88em;
+      padding: 4px 12px 4px 26px;
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 1px 3px #ff6b6b33;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 22px;
+      height: 28px;
+    ">
+      <svg width="13" height="13" viewBox="0 0 20 20" fill="none" style="margin-right:2px;">
+        <path d="M7.5 4V2.5C7.5 1.67 8.17 1 9 1H15C15.83 1 16.5 1.67 16.5 2.5V17.5C16.5 18.33 15.83 19 15 19H9C8.17 19 7.5 18.33 7.5 17.5V16" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <path d="M13 10H3.5M3.5 10L6 7.5M3.5 10L6 12.5" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Uitloggen
+    </button>
+    <h1>FA Taxi Centrale Dashboard</h1>
+  </header>
+  <div class="container">
+    <div style="display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:28px;">
+      <a href="klantenbestand.html" class="dashboard-btn-small klanten-btn"><span>👥</span> Klantenbeheer</a>
+      <a href="rittenoverzicht.html" class="dashboard-btn-small ritten-btn"><span>🚕</span> Rittenbeheer</a>
+      <a href="chauffeur.html" class="dashboard-btn-small chauffeur-btn"><span>🧑‍✈️</span> Chauffeursbeheer</a>
+    </div>
+    <style>
+      .dashboard-btn-small {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.08em;
+        font-weight: 600;
+        border-radius: 10px;
+        border: 2px solid #bfa046;
+        background: linear-gradient(120deg, #ffe082 0%, #fffbe6 100%);
+        color: #23283a;
+        box-shadow: 0 2px 8px #bfa04622, 0 1px 3px #fffbe61a;
+        padding: 12px 22px;
+        margin-bottom: 10px;
+        text-decoration: none;
+        transition: transform 0.13s, box-shadow 0.13s, background 0.18s;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+      }
+      .dashboard-btn-small span {
+        font-size: 1.3em;
+        margin-bottom: 0;
+      }
+      .dashboard-btn-small:hover {
+        background: linear-gradient(90deg, #bfa046 0%, #ffe082 100%);
+        color: #23283a;
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 4px 16px #bfa04644, 0 1px 4px #fffbe61a;
+      }
+      .klanten-btn { border-color: #2563eb; }
+      .ritten-btn { border-color: #bfa046; }
+      .chauffeur-btn { border-color: #2563eb; }
+    </style>
+  </div>
+  <script>
+    // Controleer of beheer_ingelogd is gezet in sessionStorage of als fallback op window
+    let ingelogd = false;
+    try {
+      // sessionStorage werkt alleen als je via http://localhost of een webserver draait!
+      ingelogd = sessionStorage.getItem("beheer_ingelogd") === "1";
+    } catch (err) {
+      ingelogd = !!window.beheer_ingelogd;
+    }
+
+    // Fallback: probeer window.beheer_ingelogd als sessionStorage niet werkt
+    if (!ingelogd && typeof window.beheer_ingelogd !== "undefined") {
+      ingelogd = !!window.beheer_ingelogd;
+    }
+
+    // Toon waarschuwing als je het bestand opent als file://
+    if (window.location.protocol === "file:") {
+      alert("Let op: Open deze pagina via http://localhost:8000 of een andere webserver. Anders werkt de login niet goed.");
+    }
+
+    if (!ingelogd) {
+      // Kleine vertraging zodat sessionStorage kan syncen in sommige browsers
+      setTimeout(function() {
+        window.location.href = "beheer.html";
+      }, 100);
+    }
+
+    // Zorg dat de login-status behouden blijft bij terug naar beheer.html
+    document.getElementById('naar-beheer-link').addEventListener('click', function(e) {
+      try {
+        // Zet de login-flag opnieuw voor de zekerheid
+        sessionStorage.setItem("beheer_ingelogd", "1");
+      } catch (err) {
+        window.beheer_ingelogd = true;
+      }
+      // geen localStorage/sessionStorage clear!
+      // standaard gedrag van de link laten doorgaan
+    });
+    // Fix: uitlog knop eventlistener mag niet dubbel zijn en moet na DOM geladen zijn
+    document.addEventListener('DOMContentLoaded', function() {
+      const uitlogBtn = document.getElementById('uitlog-btn');
+      if (uitlogBtn) {
+        uitlogBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sessionStorage.removeItem("beheer_ingelogd");
+          localStorage.removeItem("klant");
+          sessionStorage.clear();
+          window.location.href = "index.html";
+        });
+      }
+    });
+    // ...eventueel meer dashboard code...
+  </script>
+</body>
+</html>
