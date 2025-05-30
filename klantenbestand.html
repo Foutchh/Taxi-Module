@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>FA Taxi Centrale - Klantenbestand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="klant-style.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #23283a 0%, #353b4d 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+    }
+    header {
+      background: #23283a;
+      color: #ffe082;
+      padding: 32px 0 18px 0;
+      text-align: center;
+      border-bottom: 2px solid #bfa046;
+    }
+    header h1 {
+      font-size: 2.2em;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 40%, #fffbe6 60%, #bfa046 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px #fffbe633);
+    }
+    .container {
+      max-width: 900px;
+      margin: 36px auto 24px auto;
+      background: rgba(35,40,58,0.98);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #bfa04633, 0 2px 8px #fffbe61a;
+      padding: 32px 24px 24px 24px;
+      border: 2px solid #bfa046;
+    }
+    h2 {
+      color: #ffe082;
+      font-size: 1.5em;
+      margin-bottom: 18px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #fffbe633;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      background: #23283a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #bfa04633;
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #353b4d;
+      text-align: left;
+      font-size: 1.05em;
+    }
+    th {
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 100%);
+      color: #23283a;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #bfa046;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .klant-id {
+      font-weight: 700;
+      color: #bfa046;
+      font-size: 1.08em;
+    }
+    .gps-btn {
+      background: linear-gradient(90deg, #2563eb 0%, #bfa046 100%);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 2px;
+      box-shadow: 0 1px 3px #2563eb33;
+      transition: background 0.2s, color 0.2s;
+    }
+    .gps-btn:hover {
+      background: linear-gradient(90deg, #ffe082 0%, #bfa046 100%);
+      color: #23283a;
+    }
+    .leeg {
+      color: #b0b6c7;
+      font-size: 1.1em;
+      margin: 24px 0 0 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FA Taxi Centrale - Klantenbestand</h1>
+  </header>
+  <div class="container">
+    <a href="dashboard.html" class="gps-btn" style="margin-bottom:18px;">Terug naar dashboard</a>
+    <h2>Klanten</h2>
+    <table id="klanten-tabel">
+      <thead>
+        <tr>
+          <th>Naam</th>
+          <th>E-mail</th>
+          <th>Telefoon</th>
+          <th>Aangemaakt</th>
+          <th>GPS</th>
+          <th>Ritten</th>
+        </tr>
+      </thead>
+      <tbody id="klanten-tbody">
+        <!-- Dynamisch gevuld -->
+      </tbody>
+    </table>
+    <div class="leeg" id="geen-klanten" style="display:none;">Geen klanten gevonden.</div>
+  </div>
+  <script>
+    // Haal klanten uit backend (of localStorage als fallback)
+    async function laadKlanten() {
+      try {
+        const resp = await fetch("/api/klanten");
+        if (resp.ok) {
+          return await resp.json();
+        }
+      } catch (e) {
+        console.error("Fout bij laden klanten:", e);
+        return [];
+      }
+    }
+
+    // Haal ritten uit backend (of localStorage als fallback)
+    async function laadRitten() {
+      try {
+        const resp = await fetch("https://fa-taxi-centrale.onrender.com/api/ritten");
+        if (resp.ok) {
+          return await resp.json();
+        }
+      } catch (e) {
+        let ritten = [];
+        const rittenStr = localStorage.getItem("ritten");
+        if (rittenStr) {
+          try { ritten = JSON.parse(rittenStr); } catch (e) {}
+        }
+        return ritten;
+      }
+      return [];
+    }
+
+    // Toon klanten en koppel ritten
+    async function initKlanten() {
+      const klanten = await laadKlanten();
+      const ritten = await laadRitten();
+      const tbody = document.getElementById('klanten-tbody');
+      tbody.innerHTML = "";
+      if (!klanten.length) {
+        document.getElementById('geen-klanten').style.display = "";
+        return;
+      }
+      document.getElementById('geen-klanten').style.display = "none";
+      klanten.forEach(klant => {
+        const klantRitten = ritten.filter(r =>
+          (klant.email && r.email && r.email === klant.email) ||
+          (klant.telefoon && r.telefoon && r.telefoon === klant.telefoon)
+        );
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${klant.naam || "-"}</td>
+          <td>${klant.email || "-"}</td>
+          <td>${klant.telefoon || "-"}</td>
+          <td>${klant.aangemaakt ? new Date(klant.aangemaakt).toLocaleString() : ""}</td>
+          <td>
+            ${klant.gps ? `<button class="gps-btn" onclick="toonMap(${klant.gps.lat},${klant.gps.lng})">Bekijk</button>` : ''}
+          </td>
+          <td>
+            <button class="gps-btn" onclick="toonKlantRitten('${klant.email || ""}','${klant.telefoon || ""}')">Bekijk ritten</button>
+          </td>
+        `;
+        tr.style.cursor = "pointer";
+        tr.addEventListener('click', function(e) {
+          // Alleen toonUitgebreideInfo als niet op een knop geklikt is
+          if (e.target.tagName !== 'BUTTON') {
+            toonUitgebreideInfo(klant.id);
+          }
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Kaart tonen in popup
+    window.toonMap = function(lat, lng) {
+      const w = window.open("", "klantlocatie", "width=500,height=500");
+      w.document.write(`
+        <html><head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+        <style>html,body,#map{height:100%;margin:0;}</style>
+        </head><body>
+        <div id="map"></div>
+        <script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'><\/script>
+        <script>
+          window.onload = function() {
+            var map = L.map('map').setView([${lat},${lng}], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([${lat},${lng}]).addTo(map).bindPopup('Klant locatie').openPopup();
+          }
+        <\/script>
+        </body></html>
+      `);
+    };
+
+    window.toonKlantRitten = async function(email, telefoon) {
+      let ritten = [];
+      try {
+        const resp = await fetch("https://fa-taxi-centrale.onrender.com/api/ritten");
+        if (resp.ok) {
+          ritten = await resp.json();
+        }
+      } catch (e) {}
+      const klantRitten = ritten.filter(r =>
+        (email && r.email && r.email === email) ||
+        (telefoon && r.telefoon && r.telefoon === telefoon)
+      );
+      let html = `<h3>Ritten van klant</h3>`;
+      if (!klantRitten.length) {
+        html += "<div>Geen ritten gevonden.</div>";
+      } else {
+        klantRitten.forEach(r => {
+          html += `<div style="margin-bottom:12px;">
+            <strong>Rit-ID:</strong> ${r.id || "-"}<br>
+            <strong>Datum:</strong> ${r.datumtijd ? r.datumtijd.replace('T',' ') : "-"}<br>
+            <strong>Van:</strong> ${r.ophaaladres || "-"}<br>
+            <strong>Naar:</strong> ${r.afzetadres || "-"}<br>
+            <strong>Status:</strong> ${r.status || "-"}<br>
+            <strong>Prijs:</strong> ${r.prijs || "-"}
+          </div><hr>`;
+        });
+      }
+      const w = window.open("", "klantritten", "width=500,height=600");
+      w.document.write(`<html><head><title>Klant ritten</title></head><body style="font-family:sans-serif;">${html}</body></html>`);
+    };
+
+    async function toonUitgebreideInfo(klantId) {
+      const klant = await fetch(`/api/klanten/${klantId}`).then(resp => resp.json());
+      const modal = document.createElement('div');
+      modal.style = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);z-index:1000;min-width:280px;max-width:90vw;";
+      modal.innerHTML = `
+        <h3 style='margin-top:0;'>Klantinformatie</h3>
+        <p><strong>Naam:</strong> ${klant.naam}</p>
+        <p><strong>E-mail:</strong> ${klant.email}</p>
+        <p><strong>Telefoon:</strong> ${klant.telefoon}</p>
+        <p><strong>Aangemaakt:</strong> ${klant.aangemaakt ? new Date(klant.aangemaakt).toLocaleString() : '-'}</p>
+        <button id="sluit-modal-btn" style="margin-top:12px;padding:8px 18px;border-radius:7px;background:#bfa046;color:#fff;font-weight:600;border:none;cursor:pointer;">Sluiten</button>
+      `;
+      document.body.appendChild(modal);
+      document.getElementById('sluit-modal-btn').onclick = function() {
+        document.body.removeChild(modal);
+      };
+    }
+
+    // Toon klanten in de tabel (deze functie was niet aanwezig, nu toegevoegd)
+    function toonKlanten(klanten) {
+      const tbody = document.getElementById('klanten-tbody');
+      tbody.innerHTML = "";
+      if (!klanten.length) {
+        document.getElementById('geen-klanten').style.display = "";
+        return;
+      }
+      document.getElementById('geen-klanten').style.display = "none";
+      klanten.forEach(klant => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${klant.naam || "-"}</td>
+          <td>${klant.email || "-"}</td>
+          <td>${klant.telefoon || "-"}</td>
+          <td>${klant.aangemaakt ? new Date(klant.aangemaakt).toLocaleString() : ""}</td>
+          <td>
+            ${klant.gps ? `<button class="gps-btn" onclick="toonMap(${klant.gps.lat},${klant.gps.lng})">Bekijk</button>` : ''}
+          </td>
+          <td>
+            <button class="gps-btn" onclick="toonKlantRitten('${klant.email || ""}','${klant.telefoon || ""}')">Bekijk ritten</button>
+          </td>
+        `;
+        tr.style.cursor = "pointer";
+        tr.addEventListener('click', function(e) {
+          // Alleen toonUitgebreideInfo als niet op een knop geklikt is
+          if (e.target.tagName !== 'BUTTON') {
+            toonUitgebreideInfo(klant.id);
+          }
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Init
+    async function initKlanten() {
+      const klanten = await laadKlanten();
+      toonKlanten(klanten);
+    }
+    initKlanten();
+  </script>
+</body>
+</html>
