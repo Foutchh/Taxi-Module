@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>YOLO Taxi - Chauffeur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #4a90e2;
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    .resultaat {
+      margin-top: 20px;
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #2d2d2d;
+    }
+
+    .chauffeur-info {
+      margin-top: 30px;
+      font-size: 1.2em;
+      color: #333;
+      font-weight: bold;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      font-size: 1.2em;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #357ab7;
+    }
+  </style>
+  <script>
+    function laadRitgegevens() {
+      const ophaaladres = localStorage.getItem("ophaaladres");
+      const afzetadres = localStorage.getItem("afzetadres");
+
+      if (ophaaladres && afzetadres) {
+        document.getElementById("rit-details").innerText = `Ophaaladres: ${ophaaladres}\nAfzetadres: ${afzetadres}`;
+        document.getElementById("accept-btn").style.display = 'block';
+      } else {
+        document.getElementById("rit-details").innerText = "Geen ritgegevens beschikbaar.";
+      }
+    }
+
+    function accepteerRit() {
+      alert("Je hebt de rit geaccepteerd!");
+      // Hier kun je de ritstatus bijwerken (bijv. de chauffeur als bezet markeren).
+    }
+  </script>
+</head>
+<body onload="laadRitgegevens()">
+  <div class="container">
+    <h2>FA Taxi Centrale - Chauffeur</h2>
+    <p id="rit-details" class="chauffeur-info"></p>
+    <button id="accept-btn" onclick="accepteerRit()" style="display:none;">Accepteer Rit</button>
+  </div>
+</body>
+</html>
