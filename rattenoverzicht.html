@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>FA Taxi Centrale - Rittenoverzicht</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="klant-style.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #23283a 0%, #353b4d 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+    }
+    header {
+      background: #23283a;
+      color: #ffe082;
+      padding: 32px 0 18px 0;
+      text-align: center;
+      border-bottom: 2px solid #bfa046;
+    }
+    header h1 {
+      font-size: 2.2em;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 40%, #fffbe6 60%, #bfa046 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px #fffbe633);
+    }
+    .container {
+      max-width: 900px;
+      margin: 36px auto 24px auto;
+      background: rgba(35,40,58,0.98);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #bfa04633, 0 2px 8px #fffbe61a;
+      padding: 32px 24px 24px 24px;
+      border: 2px solid #bfa046;
+    }
+    h2 {
+      color: #ffe082;
+      font-size: 1.5em;
+      margin-bottom: 18px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #fffbe633;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      background: #23283a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #bfa04633;
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #353b4d;
+      text-align: left;
+      font-size: 1.05em;
+    }
+    th {
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 100%);
+      color: #23283a;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #bfa046;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .rit-id {
+      font-weight: 700;
+      color: #bfa046;
+      font-size: 1.08em;
+    }
+    .status-betaald {
+      color: #2ecc40;
+      font-weight: 700;
+    }
+    .status-open {
+      color: #ffe082;
+      font-weight: 700;
+    }
+    .status-geannuleerd {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+    .leeg {
+      color: #b0b6c7;
+      font-size: 1.1em;
+      margin: 24px 0 0 0;
+      text-align: center;
+    }
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 18px;
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 100%);
+      color: #23283a;
+      font-weight: 700;
+      font-size: 1.1em;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px #bfa04633;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+    }
+    .back-btn:hover {
+      background: linear-gradient(90deg, #ffe082 0%, #bfa046 100%);
+      color: #a07d1a;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FA Taxi Centrale - Rittenoverzicht</h1>
+  </header>
+  <div class="container">
+    <a href="dashboard.html" class="back-btn">Terug naar dashboard</a>
+    <h2>Ritten van klanten</h2>
+    <table id="ritten-tabel">
+      <thead>
+        <tr>
+          <th>Rit-ID</th>
+          <th>Ophaaladres</th>
+          <th>Afzetadres</th>
+          <th>Datum/tijd</th>
+          <th>Personen</th>
+          <th>Status</th>
+          <th>Prijs</th>
+          <th>GPS</th>
+        </tr>
+      </thead>
+      <tbody id="ritten-tbody">
+        <!-- Dynamisch gevuld -->
+      </tbody>
+    </table>
+    <div class="leeg" id="geen-ritten" style="display:none;">Geen ritten gevonden.</div>
+  </div>
+  <script>
+    // Haal ritten uit backend (of localStorage als fallback)
+    async function laadRitten() {
+      try {
+        const resp = await fetch("https://fa-taxi-centrale.onrender.com/api/ritten");
+        if (resp.ok) {
+          return await resp.json();
+        }
+      } catch (e) {
+        let ritten = [];
+        const rittenStr = localStorage.getItem("ritten");
+        if (rittenStr) {
+          try { ritten = JSON.parse(rittenStr); } catch (e) {}
+        }
+        return ritten;
+      }
+      return [];
+    }
+
+    async function toonRitten() {
+      const ritten = await laadRitten();
+      const tbody = document.getElementById('ritten-tbody');
+      tbody.innerHTML = "";
+      if (!ritten.length) {
+        document.getElementById('geen-ritten').style.display = "";
+        return;
+      }
+      document.getElementById('geen-ritten').style.display = "none";
+      ritten.forEach(rit => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${rit.id || '-'}</td>
+          <td>${rit.ophaaladres || '-'}</td>
+          <td>${rit.afzetadres || '-'}</td>
+          <td>${rit.datumtijd ? rit.datumtijd.replace('T',' ') : '-'}</td>
+          <td>${rit.personen || '-'}</td>
+          <td>${rit.status || '-'}</td>
+          <td>${rit.prijs || '-'}</td>
+          <td>${rit.email || '-'}</td>
+          <td>${rit.telefoon || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Init
+    toonRitten();
+  </script>
+</body>
+</html>
