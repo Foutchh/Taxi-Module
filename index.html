@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Welkom bij FA Taxi Centrale</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="klant-style.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #ffe082 0%, #bfa046 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .welkom-container {
+      background: rgba(255,255,255,0.97);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #bfa04633, 0 2px 8px #fffbe61a;
+      padding: 38px 30px 32px 30px;
+      max-width: 420px;
+      margin: 48px auto;
+      text-align: center;
+      border: 2px solid #bfa046;
+    }
+    h1 {
+      color: #bfa046;
+      font-size: 2.2em;
+      font-weight: 900;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #fffbe633;
+    }
+    .warm {
+      color: #a07d1a;
+      font-size: 1.18em;
+      margin-bottom: 24px;
+      font-weight: 600;
+      text-shadow: 0 1px 0 #fffbe6;
+    }
+    label {
+      font-size: 1.08em;
+      color: #23283a;
+      margin-bottom: 4px;
+      display: block;
+      text-align: left;
+      margin-top: 13px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0 0 0;
+      border: 1.5px solid #bfa046;
+      border-radius: 8px;
+      font-size: 1em;
+      color: #23283a;
+      background: #fffbe6;
+      box-sizing: border-box;
+      transition: border 0.2s, background 0.2s;
+      font-family: inherit;
+    }
+    input:focus {
+      border: 1.5px solid #2563eb;
+      outline: none;
+      background: #fff;
+    }
+    button[type="submit"] {
+      background: linear-gradient(90deg, #bfa046, #ffe082);
+      color: #23283a;
+      font-size: 1.15em;
+      padding: 13px 0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 24px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px #bfa04633;
+      transition: background 0.2s, transform 0.1s, color 0.2s;
+      letter-spacing: 0.5px;
+    }
+    button[type="submit"]:hover, button[type="submit"]:focus {
+      background: linear-gradient(90deg, #ffe082, #bfa046);
+      color: #2563eb;
+      transform: translateY(-2px) scale(1.01);
+    }
+    .error, .success {
+      margin-top: 12px;
+      font-size: 1em;
+      border-radius: 7px;
+      padding: 10px 12px;
+      display: none;
+    }
+    .error {
+      color: #ff6b6b;
+      background: #fff0f0;
+      border: 1px solid #ffb3b3;
+    }
+    .success {
+      color: #2ecc40;
+      background: #f0fff0;
+      border: 1px solid #b3ffb3;
+    }
+    .verif-container {
+      margin-top: 18px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="welkom-container">
+    <h1>Welkom bij FA Taxi Centrale</h1>
+    <div class="warm">
+      Hartelijk welkom! Maak eenvoudig een account aan om snel en veilig een taxi te boeken.<br>
+      Wij staan 24/7 voor u klaar met persoonlijke service.
+    </div>
+    <form id="account-form" autocomplete="off" novalidate>
+      <label for="naam">Naam</label>
+      <input id="naam" type="text" placeholder="Uw naam" required maxlength="60" />
+      <label for="email">E-mail</label>
+      <input id="email" type="email" placeholder="Uw e-mailadres" required maxlength="80" />
+      <label for="telefoon">Telefoonnummer</label>
+      <input id="telefoon" type="tel" placeholder="06-12345678" required maxlength="20" pattern="^0[0-9]{9,10}$" />
+      <div class="error" id="form-error"></div>
+      <button type="submit">Account aanmaken</button>
+    </form>
+    <button id="show-login-btn" style="margin-top:18px;background:#2563eb;color:#fff;font-weight:700;font-size:1em;padding:10px 0;width:100%;border:none;border-radius:8px;box-shadow:0 1px 3px #2563eb33;cursor:pointer;letter-spacing:0.5px;">
+      Inloggen met bestaand account
+    </button>
+    <div class="verif-container" id="verif-container">
+      <label for="verifcode">Voer de verificatiecode in die u per e-mail heeft ontvangen:</label>
+      <input id="verifcode" type="text" maxlength="6" style="text-align:center;font-size:1.2em;letter-spacing:4px;" />
+      <button id="verif-btn" style="margin-top:12px;">Verifiëren</button>
+      <div class="error" id="verif-error"></div>
+      <div class="success" id="verif-success"></div>
+    </div>
+    <div class="verif-container" id="login-container" style="display:none;">
+      <label for="login-email">E-mail</label>
+      <input id="login-email" type="email" placeholder="Uw e-mailadres" maxlength="80" />
+      <button id="login-sendcode-btn" style="margin-top:12px;">Stuur inlogcode</button>
+      <div class="success" id="login-sendcode-success" style="display:none;"></div>
+      <div class="error" id="login-sendcode-error" style="display:none;"></div>
+      <div id="login-code-section" style="display:none;margin-top:14px;">
+        <label for="login-code">Inlogcode (per mail ontvangen)</label>
+        <input id="login-code" type="text" maxlength="6" style="text-align:center;font-size:1.2em;letter-spacing:4px;" />
+        <button id="login-verify-btn" style="margin-top:12px;">Inloggen</button>
+        <div class="error" id="login-error"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Account opslaan in localStorage en verificatiecode via backend/email
+    async function sendVerificationEmail(email, code, naam) {
+      // Fallback: laat een melding zien als backend niet werkt
+      try {
+        const resp = await fetch("https://fa-taxi-centrale.onrender.com/api/send-verificatie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code, naam })
+        });
+        if (!resp.ok) throw new Error("Backend gaf een foutmelding");
+      } catch (err) {
+        alert("Verificatie e-mail kon niet worden verzonden. Controleer of je backend op Render goed draait of probeer het later opnieuw.");
+        throw err;
+      }
+    }
+
+    function saveKlant(klant) {
+      // Sla klant op via backend zodat het op elk apparaat zichtbaar is
+      fetch("https://fa-taxi-centrale.onrender.com/api/klant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(klant)
+      })
+      .then(resp => resp.json())
+      .then(result => {
+        if (result && result.success) {
+          localStorage.setItem("klant", JSON.stringify(klant));
+        } else {
+          alert("Klant kon niet opgeslagen worden. Probeer opnieuw.");
+        }
+      })
+      .catch(() => {
+        alert("Klant kon niet opgeslagen worden. Controleer je verbinding.");
+      });
+    }
+
+    // Check of klant al is ingelogd
+    // const bestaandeKlant = localStorage.getItem("klant");
+    // if (bestaandeKlant) {
+    //   window.location.href = "klantpagina.html";
+    // }
+
+    const form = document.getElementById('account-form');
+    const errorDiv = document.getElementById('form-error');
+    const verifContainer = document.getElementById('verif-container');
+    const verifBtn = document.getElementById('verif-btn');
+    const verifError = document.getElementById('verif-error');
+    const verifSuccess = document.getElementById('verif-success');
+    let gegenereerdeCode = "";
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      errorDiv.style.display = "none";
+      const naam = document.getElementById('naam').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const telefoon = document.getElementById('telefoon').value.trim();
+      // Controleer of e-mail of telefoon al bestaat via backend
+      let bestaat = false;
+      try {
+        const resp = await fetch("https://fa-taxi-centrale.onrender.com/api/klanten");
+        if (resp.ok) {
+          const klanten = await resp.json();
+          bestaat = klanten.some(k => (k.email && k.email === email) || (k.telefoon && k.telefoon === telefoon));
+        }
+      } catch (e) {
+        // Fallback op localStorage alleen als backend niet bereikbaar is
+        let klanten = [];
+        const klantenStr = localStorage.getItem("klanten");
+        if (klantenStr) { try { klanten = JSON.parse(klantenStr); } catch (e) {} }
+        bestaat = klanten.some(k => (k.email && k.email === email) || (k.telefoon && k.telefoon === telefoon));
+      }
+      if (bestaat) {
+        errorDiv.innerText = "Dit e-mailadres of telefoonnummer is al geregistreerd. Gebruik de inlogknop om in te loggen.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      if (!naam || !email || !telefoon) {
+        errorDiv.innerText = "Vul alle velden in.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      // Simpele e-mail en telefoon check
+      if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+        errorDiv.innerText = "Voer een geldig e-mailadres in.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      if (!/^0[0-9]{9,10}$/.test(telefoon.replace(/\D/g, ""))) {
+        errorDiv.innerText = "Voer een geldig Nederlands telefoonnummer in.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      // Genereer verificatiecode
+      gegenereerdeCode = (Math.floor(100000 + Math.random() * 900000)).toString();
+      // Stuur code per e-mail via backend op Render
+      try {
+        await sendVerificationEmail(email, gegenereerdeCode, naam);
+      } catch (err) {
+        errorDiv.innerText = "Verificatie e-mail kon niet worden verzonden. Probeer opnieuw.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      // Toon verificatieveld
+      verifContainer.style.display = "block";
+      form.style.display = "none";
+      // Sla klant tijdelijk op (nog niet geverifieerd)
+      window._nieuweKlant = { naam, email, telefoon, verified: false, aangemaakt: new Date().toISOString(), gps: null };
+    });
+
+    verifBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      verifError.style.display = "none";
+      verifSuccess.style.display = "none";
+      const code = document.getElementById('verifcode').value.trim();
+      if (code === gegenereerdeCode) {
+        // Sla klant definitief op
+        const klant = window._nieuweKlant;
+        klant.verified = true;
+        // GPS ophalen bij registratie
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(pos) {
+            klant.gps = {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              tijd: new Date().toISOString()
+            };
+            saveKlant(klant);
+            verifSuccess.innerText = "Account succesvol aangemaakt!";
+            verifSuccess.style.display = "block";
+            setTimeout(() => { window.location.href = "klantpagina.html"; }, 1200);
+          }, function() {
+            saveKlant(klant);
+            verifSuccess.innerText = "Account succesvol aangemaakt!";
+            verifSuccess.style.display = "block";
+            setTimeout(() => { window.location.href = "klantpagina.html"; }, 1200);
+          });
+        } else {
+          saveKlant(klant);
+          verifSuccess.innerText = "Account succesvol aangemaakt!";
+          verifSuccess.style.display = "block";
+          setTimeout(() => { window.location.href = "klantpagina.html"; }, 1200);
+        }
+      } else {
+        verifError.innerText = "Verificatiecode is onjuist.";
+        verifError.style.display = "block";
+      }
+    });
+
+    // Inlogcode opslag (tijdelijk, alleen in memory)
+    let loginCode = "";
+    let loginCodeEmail = "";
+    let loginCodeExpires = 0;
+
+    // Toon loginformulier
+    document.getElementById('show-login-btn').addEventListener('click', function() {
+      document.getElementById('account-form').style.display = "none";
+      document.getElementById('verif-container').style.display = "none";
+      document.getElementById('login-container').style.display = "block";
+    });
+
+    // Stuur inlogcode per mail
+    document.getElementById('login-sendcode-btn').addEventListener('click', async function() {
+      const email = document.getElementById('login-email').value.trim();
+      const successDiv = document.getElementById('login-sendcode-success');
+      const errorDiv = document.getElementById('login-sendcode-error');
+      successDiv.style.display = "none";
+      errorDiv.style.display = "none";
+      if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+        errorDiv.innerText = "Voer een geldig e-mailadres in.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      // Genereer 6-cijferige code
+      loginCode = (Math.floor(100000 + Math.random() * 900000)).toString();
+      loginCodeEmail = email;
+      loginCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minuten geldig
+      try {
+        await fetch("https://fa-taxi-centrale.onrender.com/api/send-verificatie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code: loginCode, naam: "Inloggen FA Taxi Centrale" })
+        });
+        successDiv.innerText = "Inlogcode is verstuurd naar uw e-mail. Geldig voor 5 minuten.";
+        successDiv.style.display = "block";
+        document.getElementById('login-code-section').style.display = "block";
+      } catch (err) {
+        errorDiv.innerText = "Kon geen inlogcode versturen. Probeer opnieuw.";
+        errorDiv.style.display = "block";
+      }
+    });
+
+    // Verifieer inlogcode
+    document.getElementById('login-verify-btn').addEventListener('click', function() {
+      const code = document.getElementById('login-code').value.trim();
+      const errorDiv = document.getElementById('login-error');
+      errorDiv.style.display = "none";
+      if (!loginCode || !loginCodeEmail) {
+        errorDiv.innerText = "Vraag eerst een inlogcode aan.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      if (Date.now() > loginCodeExpires) {
+        errorDiv.innerText = "Inlogcode is verlopen. Vraag een nieuwe code aan.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      if (code !== loginCode) {
+        errorDiv.innerText = "Inlogcode is onjuist.";
+        errorDiv.style.display = "block";
+        return;
+      }
+      // Zoek klant in backend
+      fetch("https://fa-taxi-centrale.onrender.com/api/klanten")
+        .then(resp => resp.json())
+        .then(klanten => {
+          const klant = klanten.find(k => k.email === loginCodeEmail);
+          if (!klant) {
+            errorDiv.innerHTML = `Geen account gevonden bij dit e-mailadres. <br>
+              <button id="terug-naar-inschrijven-btn" style="margin-top:10px;background:#bfa046;color:#23283a;font-weight:700;padding:8px 18px;border:none;border-radius:7px;cursor:pointer;">
+                Terug naar inschrijven
+              </button>`;
+            errorDiv.style.display = "block";
+            // Voeg event toe aan knop
+            setTimeout(() => {
+              const btn = document.getElementById('terug-naar-inschrijven-btn');
+              if (btn) {
+                btn.onclick = function() {
+                  document.getElementById('login-container').style.display = "none";
+                  document.getElementById('account-form').style.display = "";
+                };
+              }
+            }, 0);
+            return;
+          }
+          localStorage.setItem("klant", JSON.stringify(klant));
+          window.location.href = "klantpagina.html";
+        })
+        .catch(() => {
+          errorDiv.innerText = "Kon niet inloggen. Probeer opnieuw.";
+          errorDiv.style.display = "block";
+        });
+    });
+  </script>
+</body>
+</html>
