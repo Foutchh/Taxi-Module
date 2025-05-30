@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>FA Taxi Centrale - Beheer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="klant-style.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #23283a 0%, #353b4d 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #fff;
+    }
+    header {
+      background: #23283a;
+      color: #ffe082;
+      padding: 32px 0 18px 0;
+      text-align: center;
+      border-bottom: 2px solid #bfa046;
+    }
+    header h1 {
+      font-size: 2.2em;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 40%, #fffbe6 60%, #bfa046 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px #fffbe633);
+    }
+    .container {
+      max-width: 900px;
+      margin: 36px auto 24px auto;
+      background: rgba(35,40,58,0.98);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px #bfa04633, 0 2px 8px #fffbe61a;
+      padding: 32px 24px 24px 24px;
+      border: 2px solid #bfa046;
+    }
+    h2 {
+      color: #ffe082;
+      font-size: 1.5em;
+      margin-bottom: 18px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px #fffbe633;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      background: #23283a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #bfa04633;
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #353b4d;
+      text-align: left;
+      font-size: 1.05em;
+    }
+    th {
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 100%);
+      color: #23283a;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #bfa046;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .rit-id {
+      font-weight: 700;
+      color: #bfa046;
+      font-size: 1.08em;
+    }
+    .status-betaald {
+      color: #2ecc40;
+      font-weight: 700;
+    }
+    .status-open {
+      color: #ffe082;
+      font-weight: 700;
+    }
+    .status-geannuleerd {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+    .btn-actie {
+      background: linear-gradient(90deg, #bfa046 0%, #ffe082 100%);
+      color: #23283a;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 2px;
+      box-shadow: 0 1px 3px #bfa04633;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-actie:hover {
+      background: linear-gradient(90deg, #ffe082 0%, #bfa046 100%);
+      color: #a07d1a;
+    }
+    .filter-row {
+      margin-bottom: 18px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-row label {
+      margin: 0 6px 0 0;
+      color: #ffe082;
+      font-weight: 600;
+    }
+    .filter-row input, .filter-row select {
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1.5px solid #bfa046;
+      background: #23283a;
+      color: #fff;
+      font-size: 1em;
+      margin-right: 10px;
+    }
+    .filter-row input:focus, .filter-row select:focus {
+      border: 1.5px solid #ffe082;
+      outline: none;
+    }
+    .leeg {
+      color: #b0b6c7;
+      font-size: 1.1em;
+      margin: 24px 0 0 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="login-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(35,40,58,0.97);display:flex;align-items:center;justify-content:center;">
+    <form id="login-form" style="background:#23283a;border:2px solid #bfa046;border-radius:16px;box-shadow:0 8px 32px #bfa04633,0 2px 8px #fffbe61a;padding:36px 32px 28px 32px;min-width:320px;max-width:90vw;text-align:center;">
+      <h2 style="color:#ffe082;font-size:1.5em;font-weight:900;letter-spacing:1px;margin-bottom:18px;text-shadow:0 2px 8px #fffbe633;">Beheer Login</h2>
+      <label for="login-gebruiker" style="color:#fff;font-weight:600;display:block;text-align:left;margin-bottom:4px;">Gebruikersnaam</label>
+      <input id="login-gebruiker" type="text" required autocomplete="username" style="width:100%;padding:12px;margin-bottom:14px;border-radius:8px;border:1.5px solid #bfa046;font-size:1em;background:#23283a;color:#fff;" />
+      <label for="login-wachtwoord" style="color:#fff;font-weight:600;display:block;text-align:left;margin-bottom:4px;">Wachtwoord</label>
+      <input id="login-wachtwoord" type="password" required autocomplete="current-password" style="width:100%;padding:12px;margin-bottom:18px;border-radius:8px;border:1.5px solid #bfa046;font-size:1em;background:#23283a;color:#fff;" />
+      <div id="login-error" style="color:#ff6b6b;font-weight:600;margin-bottom:10px;display:none;"></div>
+      <button type="submit" style="background:linear-gradient(90deg,#bfa046 0%,#ffe082 100%);color:#23283a;font-weight:700;font-size:1.1em;padding:12px 0;width:100%;border:none;border-radius:8px;box-shadow:0 1px 3px #bfa04633;cursor:pointer;letter-spacing:0.5px;">Inloggen</button>
+    </form>
+  </div>
+  <header>
+    <h1>FA Taxi Centrale Beheer</h1>
+  </header>
+  <div class="container">
+    <h2>Overzicht ritten</h2>
+    <div class="filter-row">
+      <label for="filter-status">Status:</label>
+      <select id="filter-status">
+        <option value="">Alle</option>
+        <option value="betaald">Betaald</option>
+        <option value="open">Open</option>
+        <option value="geannuleerd">Geannuleerd</option>
+      </select>
+      <label for="filter-zoek">Zoek op rit-ID:</label>
+      <input type="text" id="filter-zoek" placeholder="RIT-..." />
+      <button class="btn-actie" id="filter-reset">Reset</button>
+    </div>
+    <table id="ritten-tabel">
+      <thead>
+        <tr>
+          <th>Rit-ID</th>
+          <th>Ophaaladres</th>
+          <th>Afzetadres</th>
+          <th>Datum/tijd</th>
+          <th>Personen</th>
+          <th>Status</th>
+          <th>Prijs</th>
+          <th>Acties</th>
+        </tr>
+      </thead>
+      <tbody id="ritten-tbody">
+        <!-- Dynamisch gevuld -->
+      </tbody>
+    </table>
+    <div class="leeg" id="geen-ritten" style="display:none;">Geen ritten gevonden.</div>
+  </div>
+  <script>
+    // Inlogscherm logica
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const gebruiker = document.getElementById('login-gebruiker').value.trim();
+      const wachtwoord = document.getElementById('login-wachtwoord').value;
+      const errorDiv = document.getElementById('login-error');
+      // Alleen toegang voor F.amaioud / Ahllen2@
+      if (gebruiker === "F.amaioud" && wachtwoord === "Ahllen2@") {
+        try {
+          sessionStorage.setItem("beheer_ingelogd", "1");
+        } catch (err) {
+          // Fallback voor browsers die sessionStorage blokkeren
+          window.beheer_ingelogd = true;
+        }
+        window.location.href = "dashboard.html";
+      } else {
+        errorDiv.innerText = "Ongeldige gebruikersnaam of wachtwoord.";
+        errorDiv.style.display = "block";
+      }
+    });
+
+    // Demo: laadt ritten uit localStorage (of API)
+    function laadRitten() {
+      // In productie: haal uit backend/database
+      let ritten = [];
+      // Demo: 1 rit uit localStorage
+      const ritId = localStorage.getItem("rit_id");
+      if (ritId) {
+        ritten.push({
+          id: ritId,
+          ophaaladres: localStorage.getItem("ophaaladres") || "",
+          afzetadres: localStorage.getItem("afzetadres") || "",
+          datumtijd: localStorage.getItem("reservering_datumtijd") || "",
+          personen: localStorage.getItem("personen") || "",
+          status: "betaald",
+          prijs: localStorage.getItem("rit_prijs") || "",
+        });
+      }
+      // Demo: extra dummy ritten
+      ritten.push({
+        id: "RIT-20240601-12345678",
+        ophaaladres: "Stationsplein 1, Rotterdam",
+        afzetadres: "Coolsingel 10, Rotterdam",
+        datumtijd: "2024-06-01T14:30",
+        personen: 2,
+        status: "open",
+        prijs: "22.50"
+      });
+      ritten.push({
+        id: "RIT-20240602-87654321",
+        ophaaladres: "Damrak 1, Amsterdam",
+        afzetadres: "Museumplein, Amsterdam",
+        datumtijd: "2024-06-02T09:00",
+        personen: 4,
+        status: "geannuleerd",
+        prijs: "0.00"
+      });
+      return ritten;
+    }
+
+    function toonRitten(ritten) {
+      const tbody = document.getElementById('ritten-tbody');
+      tbody.innerHTML = "";
+      if (!ritten.length) {
+        document.getElementById('geen-ritten').style.display = "";
+        return;
+      }
+      document.getElementById('geen-ritten').style.display = "none";
+      ritten.forEach(rit => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="rit-id">${rit.id}</td>
+          <td>${rit.ophaaladres}</td>
+          <td>${rit.afzetadres}</td>
+          <td>${rit.datumtijd ? rit.datumtijd.replace('T',' ') : ''}</td>
+          <td>${rit.personen}</td>
+          <td class="status-${rit.status}">${rit.status.charAt(0).toUpperCase() + rit.status.slice(1)}</td>
+          <td>€${rit.prijs}</td>
+          <td>
+            <button class="btn-actie" onclick="alert('Details van ${rit.id}')">Details</button>
+            <button class="btn-actie" onclick="alert('Rit ${rit.id} bewerken')">Bewerken</button>
+            <button class="btn-actie" onclick="alert('Rit ${rit.id} annuleren')">Annuleren</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterRitten() {
+      const status = document.getElementById('filter-status').value;
+      const zoek = document.getElementById('filter-zoek').value.trim().toLowerCase();
+      let ritten = laadRitten();
+      if (status) ritten = ritten.filter(r => r.status === status);
+      if (zoek) ritten = ritten.filter(r => r.id.toLowerCase().includes(zoek));
+      toonRitten(ritten);
+    }
+
+    document.getElementById('filter-status').addEventListener('change', filterRitten);
+    document.getElementById('filter-zoek').addEventListener('input', filterRitten);
+    document.getElementById('filter-reset').addEventListener('click', function() {
+      document.getElementById('filter-status').value = "";
+      document.getElementById('filter-zoek').value = "";
+      filterRitten();
+    });
+
+    // Init
+    filterRitten();
+  </script>
+</body>
+</html>
