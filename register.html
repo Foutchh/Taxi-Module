@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chauffeur Registratie</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIpEZWCLXWgCBsMQKQVSxWc4GySJ1NlMc",
+      authDomain: "fa-taxi-service.firebaseapp.com",
+      projectId: "fa-taxi-service",
+      storageBucket: "fa-taxi-service.appspot.com",
+      messagingSenderId: "482023134149",
+      appId: "1:482023134149:web:db57e87f7f671ea4a8b1ac",
+      measurementId: "G-CZ09KB69NR"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const fileInput = document.getElementById("document");
+        const file = fileInput.files[0];
+        let fileUrl = "";
+
+        try {
+          if (file) {
+            const storageRef = ref(storage, `chauffeurs/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            fileUrl = await getDownloadURL(storageRef);
+          }
+
+          const formData = {
+            voornaam: document.getElementById("voornaam").value,
+            achternaam: document.getElementById("achternaam").value,
+            woonadres: document.getElementById("woonadres").value,
+            huisnummer: document.getElementById("huisnummer").value,
+            toevoeging: document.getElementById("toevoeging").value,
+            postcode: document.getElementById("postcode").value,
+            geboortedatum: document.getElementById("geboortedatum").value,
+            zakelijkadres: document.getElementById("zakelijkadres").value,
+            telefoonnummer: document.getElementById("telefoonnummer").value,
+            email: document.getElementById("email").value,
+            documentUrl: fileUrl
+          };
+
+          await addDoc(collection(db, "chauffeurs"), formData);
+          alert("Registratie succesvol!");
+          document.getElementById("registerForm").reset();
+        } catch (error) {
+          console.error("Fout bij registreren:", error);
+          alert("Er is iets misgegaan bij het registreren. Probeer opnieuw.");
+        }
+      });
+    });
+  </script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-md">
+    <h1 class="text-3xl font-bold text-center mb-6">Chauffeur Registratie</h1>
+    <form id="registerForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input id="voornaam" type="text" placeholder="Voornaam" required class="p-2 border rounded" />
+      <input id="achternaam" type="text" placeholder="Achternaam" required class="p-2 border rounded" />
+      <input id="woonadres" type="text" placeholder="Woonadres" required class="p-2 border rounded col-span-2" />
+      <input id="huisnummer" type="text" placeholder="Huisnummer" required class="p-2 border rounded" />
+      <input id="toevoeging" type="text" placeholder="Toevoeging (optioneel)" class="p-2 border rounded" />
+      <input id="postcode" type="text" placeholder="Postcode" required class="p-2 border rounded col-span-2" />
+      <input id="geboortedatum" type="date" required class="p-2 border rounded col-span-2" />
+      <input id="zakelijkadres" type="text" placeholder="Zakelijk adres" required class="p-2 border rounded col-span-2" />
+      <input id="telefoonnummer" type="tel" placeholder="Telefoonnummer" required class="p-2 border rounded col-span-2" />
+      <input id="email" type="email" placeholder="E-mail" required class="p-2 border rounded col-span-2" />
+      <div class="col-span-2">
+        <label class="block text-sm mb-1">Upload document (ID of rijbewijs)</label>
+        <input id="document" type="file" accept=".pdf,.png,.jpg,.jpeg" class="p-2 border rounded w-full" />
+      </div>
+      <button type="submit" class="col-span-2 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">
+        Registreer
+      </button>
+    </form>
+  </div>
+</body>
+</html>
